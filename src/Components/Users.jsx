@@ -1,6 +1,7 @@
 import React from "react";
 import { use } from "react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const Users = ({ usersPromise }) => {
   const initialUsers = use(usersPromise);
@@ -35,11 +36,28 @@ const Users = ({ usersPromise }) => {
   };
   const handleDeleteUser = (id) => {
     console.log("delete user with id", id);
+    const proceed = confirm("Are you sure you want to delete this user?");
+    if (!proceed) {
+      return;
+    }
+
+    fetch(`http://localhost:3000/users/${id}`, {
+      method: "DELETE",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("after delete", data);
+        if (data.deletedCount > 0) {
+          setUsers((prevUsers) => prevUsers.filter((user) => user._id !== id));
+          alert("User deleted successfully");
+        }
+      });
   };
 
   return (
     <div>
       <h1>Simple CRUD</h1>
+      <h3>users:{users.length}</h3>
       <div>
         <form onSubmit={handleSubmit}>
           <input type="text" name="name" placeholder="Enter user name" id="" />
@@ -57,6 +75,8 @@ const Users = ({ usersPromise }) => {
         {users.map((user) => (
           <p className="" key={user._id}>
             {user.name} : {user.email}
+            <Link to={`/users/${user._id}`}>Details</Link>
+            <Link to={`/update-user/${user._id}`}>Update</Link>
             <button onClick={() => handleDeleteUser(user._id)}>X</button>
           </p>
         ))}
