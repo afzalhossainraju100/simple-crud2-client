@@ -1,9 +1,11 @@
-import React from 'react';
-import { use } from 'react';
+import React from "react";
+import { use } from "react";
+import { useState } from "react";
 
 const Users = ({ usersPromise }) => {
-    const initialUsers = use(usersPromise);
-    console.log("initial users", initialUsers);
+  const initialUsers = use(usersPromise);
+  const [users, setUsers] = useState(initialUsers);
+  console.log("initial users", initialUsers);
   const handleSubmit = (e) => {
     e.preventDefault();
     const form = e.target;
@@ -24,10 +26,15 @@ const Users = ({ usersPromise }) => {
       .then((data) => {
         console.log("after saving the user", data);
         if (data.insertedId) {
+          newUser._id = data.insertedId;
+          setUsers((prevUsers) => [...prevUsers, newUser]);
           alert("User added successfully");
           e.target.reset();
         }
       });
+  };
+  const handleDeleteUser = (id) => {
+    console.log("delete user with id", id);
   };
 
   return (
@@ -44,6 +51,15 @@ const Users = ({ usersPromise }) => {
           />
           <button type="submit">Add User</button>
         </form>
+        <p>----------------------------</p>
+      </div>
+      <div>
+        {users.map((user) => (
+          <p className="" key={user._id}>
+            {user.name} : {user.email}
+            <button onClick={() => handleDeleteUser(user._id)}>X</button>
+          </p>
+        ))}
       </div>
     </div>
   );
